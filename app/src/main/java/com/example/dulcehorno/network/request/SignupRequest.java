@@ -1,11 +1,14 @@
 package com.example.dulcehorno.network.request;
 
-public class LoginRequest {
+public class SignupRequest {
     private String email;
+    private String username;
+
     private String password;
 
-    public LoginRequest(String email, String password) {
+    public SignupRequest(String email, String username, String password) {
         this.email = email;
+        this.username = username;
         this.password = password;
     }
 }

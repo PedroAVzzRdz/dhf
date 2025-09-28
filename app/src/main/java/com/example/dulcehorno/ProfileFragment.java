@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.dulcehorno.model.UserProfile;
 import com.example.dulcehorno.network.repository.UserRepository;
+import com.example.dulcehorno.utils.ErrorHandler;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -51,31 +52,32 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body() != null ? response.body().string() : "";
+
                 if (response.isSuccessful()) {
-                    String result = response.body().string();
+                    UserProfile profile = new Gson().fromJson(responseBody, UserProfile.class);
                     requireActivity().runOnUiThread(() ->
-                            {
-                                UserProfile profile = new Gson().fromJson(result, UserProfile.class);
-                                textProfile.setText("Bienvenido, " + profile.getUsername());
-                            }
+                            textProfile.setText("Bienvenido, " + profile.getUsername())
                     );
                 } else if (response.code() == 401) {
                     // Token expirado o inválido → redirigir al login
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(getContext(), "Sesión expirada. Por favor, inicia sesión de nuevo.", Toast.LENGTH_SHORT).show();
 
-                        // Reemplaza el fragment actual con LoginFragment
                         getParentFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.fragmentContainer, new LoginFragment())
                                 .commit();
                     });
                 } else {
+                    // Mostrar mensaje de error usando ErrorHandler
+                    String errorMessage = ErrorHandler.getErrorMessage(responseBody);
                     requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Error al obtener datos", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show()
                     );
                 }
             }
+
         });
 
     }

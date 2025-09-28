@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.example.dulcehorno.MyApp;
 import com.example.dulcehorno.network.ApiClient;
+import com.example.dulcehorno.network.request.SignupRequest;
 import com.example.dulcehorno.session.SessionManager;
 import com.example.dulcehorno.network.request.LoginRequest;
 import com.google.gson.Gson;
@@ -23,6 +24,12 @@ public class AuthRepository {
 
     public void login(LoginRequest request, Callback callback) {
         String url = MyApp.getInstance().getBaseUrl() + "login";
+        String jsonBody = gson.toJson(request);
+        apiClient.post(url, jsonBody, false, callback);
+    }
+
+    public void signup(SignupRequest request, Callback callback) {
+        String url = MyApp.getInstance().getBaseUrl() + "signup";
         String jsonBody = gson.toJson(request);
         apiClient.post(url, jsonBody, false, callback);
     }

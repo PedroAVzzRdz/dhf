@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import com.example.dulcehorno.network.repository.AuthRepository;
 import com.example.dulcehorno.network.request.LoginRequest;
 import com.example.dulcehorno.model.TokenResponse;
+import com.example.dulcehorno.utils.ErrorHandler;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ import okhttp3.Response;
 
 public class LoginFragment extends Fragment {
 
-    private EditText editTextUsername, editTextPassword;
+    private EditText editTextEmail, editTextPassword;
     private Button buttonLogin;
     private AuthRepository authRepository;
 
@@ -42,22 +43,22 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        editTextUsername = view.findViewById(R.id.editTextUsername);
+        editTextEmail = view.findViewById(R.id.editTextEmail);
         editTextPassword = view.findViewById(R.id.editTextPassword);
         buttonLogin = view.findViewById(R.id.buttonLogin);
 
         authRepository = new AuthRepository(requireContext());
 
         buttonLogin.setOnClickListener(v -> {
-            String username = editTextUsername.getText().toString().trim();
+            String email = editTextEmail.getText().toString().trim();
             String password = editTextPassword.getText().toString().trim();
 
-            if (username.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            LoginRequest request = new LoginRequest(username, password);
+            LoginRequest request = new LoginRequest(email, password);
 
             authRepository.login(request, new Callback() {
                 @Override
@@ -70,33 +71,34 @@ public class LoginFragment extends Fragment {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    String responseBody = response.body() != null ? response.body().string() : "";
+
                     if (response.isSuccessful()) {
-                        String result = response.body().string();
-
-                        // 👇 Aquí asumo que el backend devuelve JSON con el token
-                        // Ejemplo: { "token": "xxxx.yyyy.zzzz" }
-                        String token = new Gson()
-                                .fromJson(result, TokenResponse.class)
-                                .getToken();
-
-                        authRepository.saveToken(token); // Guardamos JWT ✅
+                        // Parseamos el token
+                        String token = new Gson().fromJson(responseBody, TokenResponse.class).getToken();
+                        authRepository.saveToken(token);
 
                         requireActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "Login exitoso", Toast.LENGTH_SHORT).show();
 
+                            // Ir al ProfileFragment
                             getParentFragmentManager()
                                     .beginTransaction()
                                     .replace(R.id.fragmentContainer, new ProfileFragment())
-                                    .addToBackStack(null) // opcional: permite volver con el botón atrás
+                                    .addToBackStack(null) // permite volver con el botón atrás
                                     .commit();
                         });
 
                     } else {
+                        // Mostrar mensaje de error usando ErrorHandler
+                        String errorMessage = ErrorHandler.getErrorMessage(responseBody);
                         requireActivity().runOnUiThread(() ->
-                                Toast.makeText(getContext(), "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show()
                         );
                     }
                 }
+
+
             });
 
         });
