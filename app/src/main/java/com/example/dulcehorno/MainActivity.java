@@ -1,8 +1,10 @@
 package com.example.dulcehorno;
 
 import android.os.Bundle;
-import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.dulcehorno.R;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -10,7 +12,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TextView greetingText = findViewById(R.id.greetingText);
-        greetingText.setText("Hello Android!");
+        // Carga inicial: WelcomeFragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, new WelcomeFragment())
+                .commit();
     }
 }
