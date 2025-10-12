@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#F2F2F2"
+    android:layout_marginBottom="8dp">
+
+    <TextView
+        android:id="@+id/textReceiptDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fecha: 01/01/2025"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/textReceiptTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total: $100"/>
+
+    <TextView
+        android:id="@+id/textReceiptProducts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Productos: 3"/>
+</LinearLayout>

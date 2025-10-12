@@ -84,7 +84,7 @@ public class LoginFragment extends Fragment {
                             // Ir al ProfileFragment
                             getParentFragmentManager()
                                     .beginTransaction()
-                                    .replace(R.id.fragmentContainer, new ProfileFragment())
+                                    .replace(R.id.fragmentContainer, new HomeFragment())
                                     .addToBackStack(null) // permite volver con el botón atrás
                                     .commit();
                         });
