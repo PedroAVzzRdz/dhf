@@ -1,6 +1,9 @@
 package com.example.dulcehorno;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,20 +48,42 @@ public class ProductsFragment extends Fragment {
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
 
         products = new ArrayList<>();
-        // Aquí puedes agregar productos de ejemplo
-        products.add(new Product("Pan de Chocolate", 25.0, R.drawable.pan_chocolate));
-        products.add(new Product("Croissant", 18.0, R.drawable.croissant));
-        products.add(new Product("Galleta", 10.0, R.drawable.galleta));
+        products.add(new Product("p1", "Pan de Chocolate", 25.0, R.drawable.pan_chocolate));
+        products.add(new Product("p2", "Croissant", 18.0, R.drawable.croissant));
+        products.add(new Product("p3", "Galleta", 10.0, R.drawable.galleta));
 
         adapter = new ProductAdapter(products, product -> {
-            CartManager.getInstance().addToCart(product);
-            Toast.makeText(getContext(), product.getName() + " agregado al carrito", Toast.LENGTH_SHORT).show();
+            // Al pulsar agregar: pedir cantidad
+            showQuantityDialog(product);
         });
-
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+    }
 
-        // Aquí puedes agregar lógica para buscar o filtrar usando editTextSearch y spinnerCategory
+    private void showQuantityDialog(Product product) {
+        EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Cantidad (ej. 1)");
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Cantidad")
+                .setMessage("¿Cuántas unidades quieres agregar?")
+                .setView(input)
+                .setPositiveButton("Agregar", (dialog, which) -> {
+                    String text = input.getText().toString().trim();
+                    int qty = 1;
+                    try {
+                        qty = Integer.parseInt(text);
+                        if (qty <= 0) throw new NumberFormatException();
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getContext(), "Cantidad inválida, se usará 1.", Toast.LENGTH_SHORT).show();
+                        qty = 1;
+                    }
+                    CartManager.getInstance().addToCart(product, qty);
+                    Toast.makeText(getContext(), product.getName() + " x" + qty + " agregado al carrito", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 }

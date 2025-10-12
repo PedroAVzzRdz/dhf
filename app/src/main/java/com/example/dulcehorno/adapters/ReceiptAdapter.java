@@ -34,7 +34,7 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptV
         Receipt receipt = receipts.get(position);
         holder.textDate.setText("Fecha: " + receipt.getDate());
         holder.textTotal.setText("Total: $" + receipt.getTotal());
-        holder.textProducts.setText("Productos: " + receipt.getProducts().size());
+        holder.textProducts.setText("Productos: " + receipt.getItems().size());
     }
 
     @Override

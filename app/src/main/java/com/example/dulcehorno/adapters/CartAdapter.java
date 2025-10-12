@@ -4,28 +4,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dulcehorno.R;
-import com.example.dulcehorno.model.Product;
+import com.example.dulcehorno.model.CartItem;
 
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
-    private final List<Product> products;
-    private final OnRemoveListener listener;
+    private final List<CartItem> cartItems;
+    private final OnRemoveClickListener listener;
 
-    public interface OnRemoveListener {
-        void onRemove(Product product);
+    public interface OnRemoveClickListener {
+        void onRemoveClick(CartItem cartItem);
     }
 
-    public CartAdapter(List<Product> products, OnRemoveListener listener) {
-        this.products = products;
+    public CartAdapter(List<CartItem> cartItems, OnRemoveClickListener listener) {
+        this.cartItems = cartItems;
         this.listener = listener;
     }
 
@@ -33,38 +32,40 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     @Override
     public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_product, parent, false);
+                .inflate(R.layout.item_cart, parent, false);
         return new CartViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
-        Product product = products.get(position);
-        holder.textName.setText(product.getName());
-        holder.textPrice.setText("$" + product.getPrice());
-        holder.imageProduct.setImageResource(product.getDrawableResId());
+        CartItem item = cartItems.get(position);
 
-        holder.buttonAdd.setText("Eliminar");
-        holder.buttonAdd.setOnClickListener(v -> listener.onRemove(product));
+        holder.textName.setText(item.getProduct().getName());
+        holder.textPrice.setText(String.format("Precio: $%.2f", item.getProduct().getPrice()));
+        holder.textQuantity.setText(String.format("Cantidad: %d", item.getQuantity()));
+
+        double subtotal = item.getProduct().getPrice() * item.getQuantity();
+        holder.textSubtotal.setText(String.format("Subtotal: $%.2f", subtotal));
+
+        holder.buttonRemove.setOnClickListener(v -> listener.onRemoveClick(item));
     }
 
     @Override
     public int getItemCount() {
-        return products.size();
+        return cartItems.size();
     }
 
     static class CartViewHolder extends RecyclerView.ViewHolder {
-        TextView textName, textPrice;
-        Button buttonAdd;
-        ImageView imageProduct;
+        TextView textName, textPrice, textQuantity, textSubtotal;
+        Button buttonRemove;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
-            textName = itemView.findViewById(R.id.textProductName);
-            textPrice = itemView.findViewById(R.id.textProductPrice);
-            buttonAdd = itemView.findViewById(R.id.buttonAddToCart);
-            imageProduct = itemView.findViewById(R.id.imageProduct);
+            textName = itemView.findViewById(R.id.textCartName);
+            textPrice = itemView.findViewById(R.id.textCartPrice);
+            textQuantity = itemView.findViewById(R.id.textCartQuantity);
+            textSubtotal = itemView.findViewById(R.id.textCartSubtotal);
+            buttonRemove = itemView.findViewById(R.id.buttonRemove);
         }
     }
 }
-

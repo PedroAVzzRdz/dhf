@@ -16,7 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.dulcehorno.adapters.CartAdapter;
-import com.example.dulcehorno.model.Product;
+import com.example.dulcehorno.model.CartItem;
 import com.example.dulcehorno.model.Receipt;
 
 import java.util.ArrayList;
@@ -29,9 +29,9 @@ public class CartFragment extends Fragment {
     private Button buttonPay;
 
     private CartAdapter adapter;
-    private List<Product> cartItems;
+    private List<CartItem> cartItems;
 
-    // Guardamos la referencia al listener para poder removerla en onDestroyView
+    // Listener para actualizaciones del carrito
     private final CartManager.CartChangeListener cartListener = this::onCartUpdated;
 
     public CartFragment() {}
@@ -50,23 +50,20 @@ public class CartFragment extends Fragment {
         textTotal = view.findViewById(R.id.textTotal);
         buttonPay = view.findViewById(R.id.buttonPay);
 
-        // Usamos directamente la lista del CartManager para que los cambios se reflejen
+        // Obtener los items del carrito
         cartItems = CartManager.getInstance().getCartItems();
 
-        adapter = new CartAdapter(cartItems, product -> {
-            // Cuando el usuario pulsa "Eliminar" en un item
-            CartManager.getInstance().removeFromCart(product);
-            // No es necesario llamar adapter.notifyDataSetChanged() aquí porque
-            // removeFromCart() notifica a los listeners y nuestro listener actualiza la UI.
+        adapter = new CartAdapter(cartItems, cartItem -> {
+            CartManager.getInstance().removeFromCart(cartItem.getProduct());
         });
 
         recyclerCart.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerCart.setAdapter(adapter);
 
-        // Registrar listener para actualizaciones del carrito
+        // Registrar listener
         CartManager.getInstance().addListener(cartListener);
 
-        // Inicializar total
+        // Mostrar total inicial
         updateTotal();
 
         buttonPay.setOnClickListener(v -> {
@@ -75,8 +72,8 @@ public class CartFragment extends Fragment {
                 return;
             }
 
-            // Crear copia de items para el recibo
-            List<Product> itemsForReceipt = new ArrayList<>(CartManager.getInstance().getCartItems());
+            // Copia de los items del carrito para el recibo
+            List<CartItem> itemsForReceipt = new ArrayList<>(CartManager.getInstance().getCartItems());
 
             // Crear id y fecha
             String id = String.valueOf(System.currentTimeMillis());
@@ -84,24 +81,19 @@ public class CartFragment extends Fragment {
 
             double total = CartManager.getInstance().getTotalPrice();
 
-            // Construir recibo y guardarlo en ReceiptManager
+            // Crear y guardar recibo
             Receipt receipt = new Receipt(id, date, itemsForReceipt, total);
             ReceiptManager.getInstance().addReceipt(receipt);
 
-            // Limpiar carrito (esto disparará el listener y actualizará la UI)
+            // Limpiar carrito
             CartManager.getInstance().clearCart();
 
             Toast.makeText(getContext(), "Compra realizada con éxito", Toast.LENGTH_SHORT).show();
-
-            // Opcional: navegar a pestaña Historial si quieres (depende de tu nav setup)
-            // Ejemplo (si tienes acceso al BottomNavigationView): seleccionar el item de historial.
         });
     }
 
     private void onCartUpdated() {
-        // Se ejecuta cuando CartManager notifica cambios.
         requireActivity().runOnUiThread(() -> {
-            // adapter usa la misma lista de CartManager, así que basta notificar el cambio
             adapter.notifyDataSetChanged();
             updateTotal();
         });
@@ -109,15 +101,12 @@ public class CartFragment extends Fragment {
 
     private void updateTotal() {
         double total = CartManager.getInstance().getTotalPrice();
-        // Formatear con dos decimales
-        String totalText = String.format("Total: $%.2f", total);
-        textTotal.setText(totalText);
+        textTotal.setText(String.format("Total: $%.2f", total));
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Quitar el listener para evitar leaks
         CartManager.getInstance().removeListener(cartListener);
     }
 }
