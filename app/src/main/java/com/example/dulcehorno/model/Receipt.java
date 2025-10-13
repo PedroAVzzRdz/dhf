@@ -1,33 +1,31 @@
 package com.example.dulcehorno.model;
 
 import java.util.List;
+import com.example.dulcehorno.model.CartItem;
 
 public class Receipt {
     private String id;
-    private String date;
+    private String requestDate; // fecha en que se solicitó
+    private String estimatedArrivalDate; // fecha estimada de llegada
+    private String deliveryLocation; // ubicación ingresada por el usuario
     private List<CartItem> items;
     private double total;
 
-    public Receipt(String id, String date, List<CartItem> items, double total) {
+    public Receipt(String id, String requestDate, String estimatedArrivalDate,
+                   String deliveryLocation, List<CartItem> items, double total) {
         this.id = id;
-        this.date = date;
+        this.requestDate = requestDate;
+        this.estimatedArrivalDate = estimatedArrivalDate;
+        this.deliveryLocation = deliveryLocation;
         this.items = items;
         this.total = total;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public List<CartItem> getItems() {
-        return items;
-    }
-
-    public double getTotal() {
-        return total;
-    }
+    public String getId() { return id; }
+    public String getRequestDate() { return requestDate; }
+    public String getEstimatedArrivalDate() { return estimatedArrivalDate; }
+    public String getDeliveryLocation() { return deliveryLocation; }
+    public List<CartItem> getItems() { return items; }
+    public double getTotal() { return total; }
 }
+

@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,17 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dulcehorno.adapters.ReceiptAdapter;
 import com.example.dulcehorno.model.Receipt;
 import com.example.dulcehorno.model.UserProfileResponse;
-import com.example.dulcehorno.network.repository.UserRepository;
-import com.example.dulcehorno.utils.ErrorHandler;
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class HistoryFragment extends Fragment {
 
@@ -37,7 +29,7 @@ public class HistoryFragment extends Fragment {
 
     private List<Receipt> receipts;
     private ReceiptAdapter adapter;
-    private UserRepository userRepository;
+    private final Gson gson = new Gson();
 
     public HistoryFragment() {}
 
@@ -56,66 +48,31 @@ public class HistoryFragment extends Fragment {
         imageProfile = view.findViewById(R.id.imageProfile);
         recyclerReceipts = view.findViewById(R.id.recyclerReceipts);
 
-        userRepository = new UserRepository(requireContext());
         receipts = new ArrayList<>();
-        adapter = new ReceiptAdapter(receipts);
+
+        // Adapter con listener para abrir el detalle
+        adapter = new ReceiptAdapter(receipts, position -> {
+            Receipt selected = receipts.get(position);
+            String receiptJson = gson.toJson(selected);
+            ReceiptDetailDialogFragment dialog = ReceiptDetailDialogFragment.newInstance(receiptJson);
+            dialog.show(requireActivity().getSupportFragmentManager(), "receipt_detail");
+        });
 
         recyclerReceipts.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerReceipts.setAdapter(adapter);
 
-        loadUserProfile();
+        // Cargar datos del singleton
+        loadUserProfileFromSession();
         loadReceipts();
     }
 
-    private void loadUserProfile() {
-        userRepository.getUserProfile(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show()
-                );
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                // Leer el body UNA sola vez
-                String responseBody = response.body() != null ? response.body().string() : "";
-
-                if (response.isSuccessful()) {
-                    UserProfileResponse profile = new Gson().fromJson(responseBody, UserProfileResponse.class);
-                    requireActivity().runOnUiThread(() -> {
-                        textUsername.setText(profile.getUsername());
-                        textEmail.setText(profile.getEmail());
-                        imageProfile.setImageResource(R.drawable.ic_receipts);
-                    });
-
-                } else if (response.code() == 401 || response.code() == 403) {
-                    // Token inválido o sesión expirada → redirigir al login
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(
-                                getContext(),
-                                "Sesión expirada. Por favor, inicia sesión nuevamente.",
-                                Toast.LENGTH_SHORT
-                        ).show();
-
-                        // Redirigir al fragmento de login
-                        getParentFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.fragmentContainer, new LoginFragment())
-                                .commit();
-                    });
-
-                } else {
-                    // Otros errores → manejar con ErrorHandler
-                    String errorMessage = ErrorHandler.getErrorMessage(responseBody);
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show()
-                    );
-                }
-            }
-
-        });
+    private void loadUserProfileFromSession() {
+        UserProfileResponse profile = UserSession.getInstance().getUserProfile();
+        if (profile != null) {
+            textUsername.setText(profile.getUsername());
+            textEmail.setText(profile.getEmail());
+            imageProfile.setImageResource(R.drawable.ic_receipts);
+        }
     }
 
     private void loadReceipts() {
@@ -133,7 +90,6 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // evitar leaks: cortar referencia al adapter/recycler (opcional)
         recyclerReceipts.setAdapter(null);
     }
 }

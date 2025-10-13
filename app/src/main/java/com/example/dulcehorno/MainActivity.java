@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         // Carga inicial: WelcomeFragment
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, new WelcomeFragment())
+                .replace(R.id.fragmentContainer, new HomeFragment())
                 .commit();
     }
 }

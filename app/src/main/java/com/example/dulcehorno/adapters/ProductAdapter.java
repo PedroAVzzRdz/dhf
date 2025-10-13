@@ -1,3 +1,4 @@
+// package com.example.dulcehorno.adapters;
 package com.example.dulcehorno.adapters;
 
 import android.view.LayoutInflater;
@@ -17,16 +18,22 @@ import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
-    private List<Product> productList;
-    private OnAddToCartClickListener listener;
-
-    public interface OnAddToCartClickListener {
-        void onAddToCart(Product product);
+    public interface OnItemClickListener {
+        void onItemClick(Product product);
     }
 
-    public ProductAdapter(List<Product> productList, OnAddToCartClickListener listener) {
+    public interface OnAddClickListener {
+        void onAddClick(Product product);
+    }
+
+    private final List<Product> productList;
+    private final OnItemClickListener itemClickListener;
+    private final OnAddClickListener addClickListener;
+
+    public ProductAdapter(List<Product> productList, OnItemClickListener itemClickListener, OnAddClickListener addClickListener) {
         this.productList = productList;
-        this.listener = listener;
+        this.itemClickListener = itemClickListener;
+        this.addClickListener = addClickListener;
     }
 
     @NonNull
@@ -39,16 +46,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Product product = productList.get(position);
-        holder.textName.setText(product.getName());
-        holder.textPrice.setText("$" + product.getPrice());
+        Product p = productList.get(position);
+        holder.textName.setText(p.getName());
+        holder.textPrice.setText(String.format("$%.2f", p.getPrice()));
+        holder.imageProduct.setImageResource(p.getDrawableResId());
 
-        // Asignar la imagen
-        holder.imageProduct.setImageResource(product.getDrawableResId());
+        // click en todo el item → abrir detalle
+        holder.itemView.setOnClickListener(v -> {
+            if (itemClickListener != null) itemClickListener.onItemClick(p);
+        });
 
-        holder.buttonAdd.setOnClickListener(v -> listener.onAddToCart(product));
+        // click en el botón agregar → pedir cantidad (o delegar)
+        holder.buttonAdd.setOnClickListener(v -> {
+            if (addClickListener != null) addClickListener.onAddClick(p);
+        });
     }
-
 
     @Override
     public int getItemCount() {
@@ -56,16 +68,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageProduct;
         TextView textName, textPrice;
         Button buttonAdd;
-        ImageView imageProduct;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
+            imageProduct = itemView.findViewById(R.id.imageProduct);
             textName = itemView.findViewById(R.id.textProductName);
             textPrice = itemView.findViewById(R.id.textProductPrice);
             buttonAdd = itemView.findViewById(R.id.buttonAddToCart);
-            imageProduct = itemView.findViewById(R.id.imageProduct);
         }
     }
 }
+

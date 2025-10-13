@@ -1,12 +1,15 @@
 package com.example.dulcehorno;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -21,7 +24,10 @@ import com.example.dulcehorno.adapters.ProductAdapter;
 import com.example.dulcehorno.model.Product;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class ProductsFragment extends Fragment {
 
@@ -29,7 +35,10 @@ public class ProductsFragment extends Fragment {
     private EditText editTextSearch;
     private Spinner spinnerCategory;
     private ProductAdapter adapter;
-    private List<Product> products;
+
+    // allProducts = fuente de verdad; filteredProducts = lo que muestra el adapter
+    private List<Product> allProducts;
+    private List<Product> filteredProducts;
 
     public ProductsFragment() {}
 
@@ -47,20 +56,100 @@ public class ProductsFragment extends Fragment {
         editTextSearch = view.findViewById(R.id.editTextSearch);
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
 
-        products = new ArrayList<>();
-        products.add(new Product("p1", "Pan de Chocolate", 25.0, R.drawable.pan_chocolate));
-        products.add(new Product("p2", "Croissant", 18.0, R.drawable.croissant));
-        products.add(new Product("p3", "Galleta", 10.0, R.drawable.galleta));
+        // Inicializar listas
+        allProducts = new ArrayList<>();
+        filteredProducts = new ArrayList<>();
 
-        adapter = new ProductAdapter(products, product -> {
-            // Al pulsar agregar: pedir cantidad
-            showQuantityDialog(product);
-        });
+        // --- Rellena aquí tus productos (usa el constructor que tengas en Product) ---
+        // Asegúrate de usar el orden correcto de parámetros según tu Product.java
+        allProducts.add(new Product("p1", "Pan de Chocolate", 25.0, R.drawable.pan_chocolate, "Pan relleno de chocolate suave y recién horneado.", "Panadería"));
+        allProducts.add(new Product("p2", "Croissant", 18.0, R.drawable.croissant, "Crujiente, mantecoso y delicioso para el desayuno.", "Panadería"));
+        allProducts.add(new Product("p3", "Galleta", 10.0, R.drawable.galleta, "Galleta casera con chispas de chocolate.", "Repostería"));
+        // agrega más productos si quieres...
+
+        // Inicialmente mostrar todos
+        filteredProducts.addAll(allProducts);
+
+        // Adapter con ambos listeners (abrir detalle / agregar)
+        adapter = new ProductAdapter(
+                filteredProducts,
+                this::openProductDetail,   // click en el producto → ver detalle
+                this::showQuantityDialog   // click en “Agregar” → pedir cantidad
+        );
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+
+        setupCategorySpinner();
+        setupSearchInput();
     }
 
+    private void setupCategorySpinner() {
+        List<String> categories = collectCategories();
+        // Crear ArrayAdapter para el spinner
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, categories);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(spinnerAdapter);
+
+        spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                applyFilters();
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
+        });
+    }
+
+    private List<String> collectCategories() {
+        Set<String> set = new HashSet<>();
+        for (Product p : allProducts) {
+            if (p.getCategory() != null && !p.getCategory().trim().isEmpty()) {
+                set.add(p.getCategory().trim());
+            }
+        }
+        List<String> list = new ArrayList<>();
+        list.add("Todas"); // opción por defecto
+        list.addAll(set);
+        return list;
+    }
+
+    private void setupSearchInput() {
+        // TextWatcher para búsquedas en tiempo real
+        editTextSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                applyFilters();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    /**
+     * Filtra productos por categoría seleccionada y texto de búsqueda (nombre).
+     * Actualiza filteredProducts y notifica al adapter.
+     */
+    private void applyFilters() {
+        String selectedCategory = (String) spinnerCategory.getSelectedItem();
+        String query = editTextSearch.getText() != null ? editTextSearch.getText().toString().trim().toLowerCase(Locale.ROOT) : "";
+
+        filteredProducts.clear();
+        for (Product p : allProducts) {
+            boolean matchesCategory = "Todas".equals(selectedCategory) || selectedCategory == null
+                    || (p.getCategory() != null && p.getCategory().equals(selectedCategory));
+            boolean matchesQuery = query.isEmpty() || (p.getName() != null && p.getName().toLowerCase(Locale.ROOT).contains(query));
+
+            if (matchesCategory && matchesQuery) {
+                filteredProducts.add(p);
+            }
+        }
+
+        // Notificar cambios
+        adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Muestra un diálogo para elegir la cantidad y agrega el producto al carrito.
+     */
     private void showQuantityDialog(Product product) {
         EditText input = new EditText(requireContext());
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -85,5 +174,19 @@ public class ProductsFragment extends Fragment {
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    /**
+     * Abre un fragmento con más información del producto.
+     */
+    private void openProductDetail(Product product) {
+        ProductDetailFragment detailFragment = ProductDetailFragment.newInstance(product);
+
+        requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.homeFragmentContainer, detailFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

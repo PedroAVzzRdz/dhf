@@ -1,5 +1,6 @@
 package com.example.dulcehorno;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import androidx.recyclerview.widget.RecyclerView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +22,9 @@ import com.example.dulcehorno.model.CartItem;
 import com.example.dulcehorno.model.Receipt;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class CartFragment extends Fragment {
 
@@ -54,6 +58,7 @@ public class CartFragment extends Fragment {
         cartItems = CartManager.getInstance().getCartItems();
 
         adapter = new CartAdapter(cartItems, cartItem -> {
+            // eliminar el producto (usa el product dentro del cartItem)
             CartManager.getInstance().removeFromCart(cartItem.getProduct());
         });
 
@@ -72,23 +77,56 @@ public class CartFragment extends Fragment {
                 return;
             }
 
-            // Copia de los items del carrito para el recibo
-            List<CartItem> itemsForReceipt = new ArrayList<>(CartManager.getInstance().getCartItems());
+            // Mostrar diálogo para ingresar la dirección/ubicación de entrega
+            final EditText input = new EditText(requireContext());
+            input.setHint("Dirección o referencia de entrega");
 
-            // Crear id y fecha
-            String id = String.valueOf(System.currentTimeMillis());
-            String date = DateFormat.format("dd/MM/yyyy HH:mm", new java.util.Date()).toString();
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Ubicación de entrega")
+                    .setMessage("Ingresa la dirección donde deseas recibir tu pedido:")
+                    .setView(input)
+                    .setPositiveButton("Confirmar", (dialog, which) -> {
+                        String location = input.getText() != null ? input.getText().toString().trim() : "";
+                        if (location.isEmpty()) {
+                            Toast.makeText(getContext(), "Debes ingresar una ubicación válida", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-            double total = CartManager.getInstance().getTotalPrice();
+                        // Generar fechas:
+                        // requestDate = ahora
+                        String requestDate = DateFormat.format("dd/MM/yyyy HH:mm", new java.util.Date()).toString();
 
-            // Crear y guardar recibo
-            Receipt receipt = new Receipt(id, date, itemsForReceipt, total);
-            ReceiptManager.getInstance().addReceipt(receipt);
+                        // estimatedArrival: sumar días aleatorios (por ejemplo 1..5 días)
+                        Random rnd = new Random();
+                        int extraDays = rnd.nextInt(5) + 1; // 1..5
+                        Calendar cal = Calendar.getInstance();
+                        cal.add(Calendar.DAY_OF_MONTH, extraDays);
+                        String estimatedArrival = DateFormat.format("dd/MM/yyyy", cal).toString();
 
-            // Limpiar carrito
-            CartManager.getInstance().clearCart();
+                        // Copia de items (para guardar snapshot en recibo)
+                        List<CartItem> itemsForReceipt = new ArrayList<>();
+                        for (CartItem ci : CartManager.getInstance().getCartItems()) {
+                            // create shallow copy - CartItem has product reference and quantity
+                            itemsForReceipt.add(new CartItem(ci.getProduct(), ci.getQuantity()));
+                        }
 
-            Toast.makeText(getContext(), "Compra realizada con éxito", Toast.LENGTH_SHORT).show();
+                        double total = CartManager.getInstance().getTotalPrice();
+                        String id = String.valueOf(System.currentTimeMillis());
+
+                        // Crear y guardar recibo
+                        Receipt receipt = new Receipt(id, requestDate, estimatedArrival, location, itemsForReceipt, total);
+                        ReceiptManager.getInstance().addReceipt(receipt);
+
+                        // Limpiar carrito
+                        CartManager.getInstance().clearCart();
+
+                        Toast.makeText(getContext(), "Compra realizada. Entrega estimada: " + estimatedArrival, Toast.LENGTH_LONG).show();
+
+                        // Opcional: navegar a Historial
+                        // Si tienes un BottomNavigationView, selecciona el item de historial aquí (depende de tu estructura).
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
         });
     }
 

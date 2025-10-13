@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="12dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#F2F2F2"
-    android:layout_marginBottom="8dp">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground">
 
     <TextView
-        android:id="@+id/textReceiptDate"
+        android:id="@+id/textReceiptRequestDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fecha: 01/01/2025"
-        android:textStyle="bold"/>
+        android:text="Pedido: 2025-10-12"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textReceiptTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Total: $100"/>
+        android:text="Total: $0.00"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"/>
 
-    <TextView
-        android:id="@+id/textReceiptProducts"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Productos: 3"/>
 </LinearLayout>
