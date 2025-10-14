@@ -17,6 +17,9 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/menu_home_navigation" />
-
+        app:menu="@menu/menu_home_navigation"
+        app:backgroundTint="#FFFFFF"
+    app:itemIconTint="@color/nav_item_tint"
+    app:itemTextColor="@color/nav_item_tint" />
 </LinearLayout>
+

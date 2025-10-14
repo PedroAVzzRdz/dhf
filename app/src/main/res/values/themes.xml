@@ -5,4 +5,9 @@
         <item name="colorPrimaryDark">#5A2E0D</item>
         <item name="colorAccent">#FF0000</item>
     </style>
+    <style name="Theme.TransparentDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

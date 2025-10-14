@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dulcehorno.R;
 import com.example.dulcehorno.model.Receipt;
-import com.example.dulcehorno.model.CartItem;
+
 import java.util.List;
 
 public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptViewHolder> {

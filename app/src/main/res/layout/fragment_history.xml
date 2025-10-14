@@ -1,66 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:background="#D49670"
+    android:padding="20dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Sección perfil -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:padding="8dp">
+    <!-- Sección de perfil -->
+<LinearLayout
+android:orientation="horizontal"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:gravity="center_vertical"
+android:background="#ED998A"
+android:padding="12dp"
+android:elevation="4dp"
+android:layout_marginBottom="16dp"
+android:clipToPadding="false"
+android:backgroundTint="#FFF">
 
-        <ImageView
-            android:id="@+id/imageProfile"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_receipts"
-            android:contentDescription="Perfil"
-            android:layout_marginEnd="16dp"/>
+<ImageView
+    android:id="@+id/imageProfile"
+    android:layout_width="70dp"
+    android:layout_height="70dp"
+    android:src="@drawable/ic_receipts"
+    android:background="@drawable/circle_background"
+    android:padding="8dp"
+    android:layout_marginEnd="16dp"
+    android:contentDescription="Perfil" />
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/textUsername"
-                android:text="Usuario"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/textEmail"
-                android:text="correo@ejemplo.com"
-                android:textSize="14sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC"
-        android:layout_marginVertical="8dp"/>
-
-    <!-- Historial de recibos -->
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/textUsername"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Historial de recibos"
-        android:textSize="16sp"
+        android:text="Usuario"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:textColor="#4E342E"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerReceipts"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+    <TextView
+        android:id="@+id/textEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="correo@ejemplo.com"
+        android:textSize="14sp"
+        android:textColor="#6D4C41"/>
 </LinearLayout>
+</LinearLayout>
+
+    <!-- Título historial -->
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Historial de recibos"
+android:textSize="18sp"
+android:textStyle="bold"
+android:textColor="#4E342E"
+android:layout_marginBottom="8dp"
+android:layout_marginStart="4dp"/>
+
+    <!-- Lista de recibos -->
+<androidx.recyclerview.widget.RecyclerView
+android:id="@+id/recyclerReceipts"
+android:layout_width="match_parent"
+android:layout_height="0dp"
+android:layout_weight="1"
+android:background="#FFF8E1"
+android:padding="8dp"
+android:clipToPadding="false"
+android:elevation="2dp"/>
+    </LinearLayout>

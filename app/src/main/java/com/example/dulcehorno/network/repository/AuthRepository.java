@@ -4,9 +4,9 @@ import android.content.Context;
 
 import com.example.dulcehorno.MyApp;
 import com.example.dulcehorno.network.ApiClient;
+import com.example.dulcehorno.network.request.LoginRequest;
 import com.example.dulcehorno.network.request.SignupRequest;
 import com.example.dulcehorno.session.SessionManager;
-import com.example.dulcehorno.network.request.LoginRequest;
 import com.google.gson.Gson;
 
 import okhttp3.Callback;

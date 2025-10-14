@@ -1,10 +1,10 @@
 // ReceiptManager.java
 package com.example.dulcehorno;
 
+import com.example.dulcehorno.model.Receipt;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.dulcehorno.model.Receipt;
 
 public class ReceiptManager {
     private static ReceiptManager instance;

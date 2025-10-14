@@ -1,16 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:background="#D49670"
+    android:padding="20dp"
+    android:gravity="start"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Encabezado -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/imageCartHeader"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Icono repartidor"
+            android:src="@drawable/repartidor" />
+
+        <TextView
+            android:id="@+id/textCartTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tu carrito"
+            android:textColor="#4E342E"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Lista de productos -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerCart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:background="#D49670"
+        android:padding="8dp"
+        android:clipToPadding="false" />
 
+    <!-- Total -->
     <TextView
         android:id="@+id/textTotal"
         android:layout_width="match_parent"
@@ -18,15 +51,22 @@
         android:text="Total: $0.00"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginTop="8dp"
-        android:gravity="end"/>
+        android:textColor="#3E2723"
+        android:gravity="end"
+        android:layout_marginTop="12dp" />
 
+    <!-- Botón pagar -->
     <Button
         android:id="@+id/buttonPay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Pagar"
+        android:textAllCaps="false"
+        android:textSize="16sp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#6200EE"
-        android:textColor="#FFFFFF"/>
+        android:textColor="@android:color/white"
+        android:backgroundTint="#795548"
+        android:padding="12dp"
+        android:fontFamily="sans-serif-medium" />
+
 </LinearLayout>

@@ -1,7 +1,6 @@
 package com.example.dulcehorno.model;
 
 import java.util.List;
-import com.example.dulcehorno.model.CartItem;
 
 public class Receipt {
     private String id;

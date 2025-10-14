@@ -6,14 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.dulcehorno.model.Receipt;
 import com.example.dulcehorno.model.CartItem;
+import com.example.dulcehorno.model.Receipt;
 import com.example.dulcehorno.model.UserProfileResponse;
 import com.google.gson.Gson;
 
@@ -32,6 +33,13 @@ public class ReceiptDetailDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Aquí aplicamos el tema transparente
+        setStyle(STYLE_NO_TITLE, R.style.Theme_TransparentDialog);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         if (getDialog() != null && getDialog().getWindow() != null) {
@@ -47,6 +55,7 @@ public class ReceiptDetailDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View root = inflater.inflate(R.layout.fragment_receipt_detail, container, false);
 
         String receiptJson = getArguments() != null ? getArguments().getString(ARG_RECEIPT_JSON) : null;
@@ -58,21 +67,24 @@ public class ReceiptDetailDialogFragment extends DialogFragment {
             }
         }
 
-        TextView tvUserName = root.findViewById(R.id.tvDetailUserName); // optional in layout
-        TextView tvUserEmail = root.findViewById(R.id.tvDetailUserEmail); // optional in layout
+        TextView tvUserName = root.findViewById(R.id.tvDetailUserName);
+        TextView tvUserEmail = root.findViewById(R.id.tvDetailUserEmail);
         TextView tvRequestDate = root.findViewById(R.id.tvDetailRequestDate);
         TextView tvEstimated = root.findViewById(R.id.tvDetailEstimated);
         TextView tvLocation = root.findViewById(R.id.tvDetailLocation);
         TextView tvItems = root.findViewById(R.id.tvDetailItems);
         TextView tvTotal = root.findViewById(R.id.tvDetailTotal);
+        ImageView btnClose = root.findViewById(R.id.btnCloseDialog);
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> dismiss());
+        }
 
-        // If user info exists in singleton, show it (optional)
+
         UserProfileResponse user = UserSession.getInstance().getUserProfile();
         if (user != null) {
             if (tvUserName != null) tvUserName.setText(user.getUsername());
             if (tvUserEmail != null) tvUserEmail.setText(user.getEmail());
         } else {
-            // hide or clear if these TextViews exist
             if (tvUserName != null) tvUserName.setVisibility(View.GONE);
             if (tvUserEmail != null) tvUserEmail.setVisibility(View.GONE);
         }
@@ -82,7 +94,6 @@ public class ReceiptDetailDialogFragment extends DialogFragment {
             if (tvEstimated != null) tvEstimated.setText("Llegará aprox.: " + safe(receipt.getEstimatedArrivalDate()));
             if (tvLocation != null) tvLocation.setText("Dirección: " + safe(receipt.getDeliveryLocation()));
 
-            // build items text (multiple lines)
             StringBuilder sb = new StringBuilder();
             if (receipt.getItems() != null) {
                 for (CartItem item : receipt.getItems()) {
@@ -98,7 +109,6 @@ public class ReceiptDetailDialogFragment extends DialogFragment {
 
             if (tvTotal != null) tvTotal.setText(String.format("Total: $%.2f", receipt.getTotal()));
         } else {
-            // fallback UI
             if (tvRequestDate != null) tvRequestDate.setText("Pedido: -");
             if (tvEstimated != null) tvEstimated.setText("Llegará aprox.: -");
             if (tvLocation != null) tvLocation.setText("Dirección: -");

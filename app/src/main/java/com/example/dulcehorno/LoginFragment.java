@@ -11,9 +11,9 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.dulcehorno.model.TokenResponse;
 import com.example.dulcehorno.network.repository.AuthRepository;
 import com.example.dulcehorno.network.request.LoginRequest;
-import com.example.dulcehorno.model.TokenResponse;
 import com.example.dulcehorno.utils.ErrorHandler;
 import com.google.gson.Gson;
 
