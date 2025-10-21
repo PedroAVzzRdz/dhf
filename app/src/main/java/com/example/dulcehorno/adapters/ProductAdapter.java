@@ -1,6 +1,8 @@
 // package com.example.dulcehorno.adapters;
 package com.example.dulcehorno.adapters;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +51,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product p = productList.get(position);
         holder.textName.setText(p.getName());
         holder.textPrice.setText(String.format("$%.2f", p.getPrice()));
-        holder.imageProduct.setImageResource(p.getDrawableResId());
+        int resId = holder.itemView.getContext().getResources().getIdentifier(
+                p.getDrawableResId(), "drawable", holder.itemView.getContext().getPackageName()
+        );
+        holder.imageProduct.setImageResource(resId);
 
         // click en todo el item → abrir detalle
         holder.itemView.setOnClickListener(v -> {

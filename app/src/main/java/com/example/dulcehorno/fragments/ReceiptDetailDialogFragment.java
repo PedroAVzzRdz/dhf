@@ -1,4 +1,4 @@
-package com.example.dulcehorno;
+package com.example.dulcehorno.fragments;
 
 import android.os.Bundle;
 import android.view.Gravity;
@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.dulcehorno.R;
+import com.example.dulcehorno.UserSessionManager;
 import com.example.dulcehorno.model.CartItem;
 import com.example.dulcehorno.model.Receipt;
 import com.example.dulcehorno.model.UserProfileResponse;
@@ -80,7 +82,7 @@ public class ReceiptDetailDialogFragment extends DialogFragment {
         }
 
 
-        UserProfileResponse user = UserSession.getInstance().getUserProfile();
+        UserProfileResponse user = UserSessionManager.getInstance().getUserProfile();
         if (user != null) {
             if (tvUserName != null) tvUserName.setText(user.getUsername());
             if (tvUserEmail != null) tvUserEmail.setText(user.getEmail());

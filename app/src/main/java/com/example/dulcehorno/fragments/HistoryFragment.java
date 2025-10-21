@@ -1,4 +1,4 @@
-package com.example.dulcehorno;
+package com.example.dulcehorno.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +13,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dulcehorno.R;
+import com.example.dulcehorno.ReceiptManager;
+import com.example.dulcehorno.UserSessionManager;
 import com.example.dulcehorno.adapters.ReceiptAdapter;
 import com.example.dulcehorno.model.Receipt;
 import com.example.dulcehorno.model.UserProfileResponse;
@@ -67,7 +70,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private void loadUserProfileFromSession() {
-        UserProfileResponse profile = UserSession.getInstance().getUserProfile();
+        UserProfileResponse profile = UserSessionManager.getInstance().getUserProfile();
         if (profile != null) {
             textUsername.setText(profile.getUsername());
             textEmail.setText(profile.getEmail());

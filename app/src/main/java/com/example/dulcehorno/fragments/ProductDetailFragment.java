@@ -1,4 +1,4 @@
-package com.example.dulcehorno;
+package com.example.dulcehorno.fragments;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.dulcehorno.R;
 import com.example.dulcehorno.model.Product;
 
 public class ProductDetailFragment extends DialogFragment {
@@ -101,7 +102,11 @@ public class ProductDetailFragment extends DialogFragment {
 
         // Rellenar datos
         if (product != null) {
-            image.setImageResource(product.getDrawableResId());
+            int resId = requireContext().getResources().getIdentifier(
+                    product.getDrawableResId(), "drawable", requireContext().getPackageName()
+            );
+
+            image.setImageResource(resId);
             tvName.setText(product.getName());
             tvCategory.setText(product.getCategory());
             tvPrice.setText(String.format("$%.2f", product.getPrice()));

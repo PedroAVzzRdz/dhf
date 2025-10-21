@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.dulcehorno.fragments.WelcomeFragment;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override

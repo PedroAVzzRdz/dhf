@@ -2,14 +2,14 @@ package com.example.dulcehorno;
 
 import com.example.dulcehorno.model.UserProfileResponse;
 
-public class UserSession {
-    private static UserSession instance;
+public class UserSessionManager {
+    private static UserSessionManager instance;
     private UserProfileResponse userProfile;
 
-    private UserSession() {}
+    private UserSessionManager() {}
 
-    public static synchronized UserSession getInstance() {
-        if (instance == null) instance = new UserSession();
+    public static synchronized UserSessionManager getInstance() {
+        if (instance == null) instance = new UserSessionManager();
         return instance;
     }
 

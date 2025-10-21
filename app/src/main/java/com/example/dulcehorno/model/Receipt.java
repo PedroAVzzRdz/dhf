@@ -4,9 +4,9 @@ import java.util.List;
 
 public class Receipt {
     private String id;
-    private String requestDate; // fecha en que se solicitó
-    private String estimatedArrivalDate; // fecha estimada de llegada
-    private String deliveryLocation; // ubicación ingresada por el usuario
+    private String requestDate;
+    private String estimatedArrivalDate;
+    private String deliveryLocation;
     private List<CartItem> items;
     private double total;
 
