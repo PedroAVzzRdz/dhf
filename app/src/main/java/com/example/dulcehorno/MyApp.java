@@ -6,7 +6,7 @@ public class MyApp extends Application {
     private static MyApp instance;
 
     // Base URL de tu API
-    private final String BASE_URL = "http://10.0.2.2:3000/api/";
+    private final String BASE_URL = "https://dulcehorno.onrender.com/api/";
 
     @Override
     public void onCreate() {

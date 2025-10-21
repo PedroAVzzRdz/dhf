@@ -1,7 +1,4 @@
-// package com.example.dulcehorno.adapters;
 package com.example.dulcehorno.adapters;
-
-import static androidx.core.content.ContentProviderCompat.requireContext;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,8 +46,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product p = productList.get(position);
+
         holder.textName.setText(p.getName());
         holder.textPrice.setText(String.format("$%.2f", p.getPrice()));
+        holder.textStock.setText("Disponibles: " + p.getAvailableUnits());
+
         int resId = holder.itemView.getContext().getResources().getIdentifier(
                 p.getDrawableResId(), "drawable", holder.itemView.getContext().getPackageName()
         );
@@ -74,7 +74,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView imageProduct;
-        TextView textName, textPrice;
+        TextView textName, textPrice, textStock;
         Button buttonAdd;
 
         public ProductViewHolder(@NonNull View itemView) {
@@ -82,8 +82,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             imageProduct = itemView.findViewById(R.id.imageProduct);
             textName = itemView.findViewById(R.id.textProductName);
             textPrice = itemView.findViewById(R.id.textProductPrice);
+            textStock = itemView.findViewById(R.id.textProductStock); // <-- NUEVO
             buttonAdd = itemView.findViewById(R.id.buttonAddToCart);
         }
     }
 }
-

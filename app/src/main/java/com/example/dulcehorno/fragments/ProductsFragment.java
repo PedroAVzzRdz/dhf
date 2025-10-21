@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dulcehorno.CartManager;
+import com.example.dulcehorno.ProductManager;
 import com.example.dulcehorno.R;
 import com.example.dulcehorno.ReceiptManager;
 import com.example.dulcehorno.adapters.ProductAdapter;
@@ -54,10 +55,6 @@ public class ProductsFragment extends Fragment {
     private List<Product> allProducts;
     private List<Product> filteredProducts;
 
-    private ProductsRepository productsRepository;
-
-    Gson gson;
-
     public ProductsFragment() {}
 
     @Override
@@ -67,78 +64,29 @@ public class ProductsFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        filteredProducts.clear();
+        filteredProducts.addAll(ProductManager.getInstance().getProducts());
+        adapter.notifyDataSetChanged();
+    }
+
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.recyclerViewProducts);
         editTextSearch = view.findViewById(R.id.editTextSearch);
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
-        gson = new Gson();
-        productsRepository = new ProductsRepository(requireContext());
 
-        // Inicializar listas
-        allProducts = new ArrayList<>();
-        filteredProducts = new ArrayList<>();
+        allProducts = ProductManager.getInstance().getProducts();
+        filteredProducts = new ArrayList<>(allProducts);
 
-        productsRepository.getProducts(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-                if (!isAdded() || getActivity() == null) return; // <-- seguridad
-                getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show()
-                );
-
-                getActivity().runOnUiThread(() -> {
-                    getActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragmentContainer, new LoginFragment())
-                            .addToBackStack(null)
-                            .commit();
-                });
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (!isAdded() || getActivity() == null) return; // <-- seguridad
-
-                String responseBody = response.body() != null ? response.body().string() : "";
-
-                if (response.isSuccessful()) {
-                    Type listType = new TypeToken<List<Product>>() {}.getType();
-                    List<Product> products = gson.fromJson(responseBody, listType);
-
-                    getActivity().runOnUiThread(() -> {
-                        allProducts.clear();
-                        allProducts.addAll(products);
-                        filteredProducts.clear();
-                        filteredProducts.addAll(products);
-                        adapter.notifyDataSetChanged(); // refresca el RecyclerView
-                    });
-
-                } else {
-                    String errorMessage = ErrorHandler.getErrorMessage(responseBody);
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                        getActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.fragmentContainer, new LoginFragment())
-                                .addToBackStack(null)
-                                .commit();
-                    });
-                }
-            }
-        });
-
-
-        // Inicialmente mostrar todos
-        filteredProducts.addAll(allProducts);
-
-        // Adapter con ambos listeners (abrir detalle / agregar)
         adapter = new ProductAdapter(
                 filteredProducts,
-                this::openProductDetail,   // click en el producto → ver detalle
-                this::showQuantityDialog   // click en “Agregar” → pedir cantidad
+                this::openProductDetail,
+                this::showQuantityDialog
         );
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -148,9 +96,9 @@ public class ProductsFragment extends Fragment {
         setupSearchInput();
     }
 
+
     private void setupCategorySpinner() {
         List<String> categories = collectCategories();
-        // Crear ArrayAdapter para el spinner
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categories);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

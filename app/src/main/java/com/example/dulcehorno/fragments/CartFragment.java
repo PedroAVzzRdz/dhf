@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dulcehorno.CartManager;
+import com.example.dulcehorno.ProductManager;
 import com.example.dulcehorno.R;
 import com.example.dulcehorno.ReceiptManager;
 import com.example.dulcehorno.adapters.CartAdapter;
@@ -173,9 +174,18 @@ public class CartFragment extends Fragment {
                                                 Toast.makeText(getContext(), "Entrega estimada: " + estimatedArrival, Toast.LENGTH_LONG).show();
                                             });
 
+                                            // Agregar recibo al singleton de recibos
                                             ReceiptManager.getInstance().addReceipt(receipt);
+
+                                            // Actualizar carrito
                                             CartManager.getInstance().clearCart();
-                                        } else {
+
+                                            // ACTUALIZAR STOCK EN PRODUCT MANAGER
+                                            for (CartItem ci : itemsForReceipt) {
+                                                ProductManager.getInstance().decreaseProductUnits(ci.getProduct().getId(), ci.getQuantity());
+                                            }
+                                        }
+                                        else {
                                             int statusCode = response.code();
                                             String errorMessage = ErrorHandler.getErrorMessage(responseBody);
 
