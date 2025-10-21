@@ -10,19 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.dulcehorno.ReceiptManager;
 import com.example.dulcehorno.ProductManager;
+import com.example.dulcehorno.ReceiptManager;
 import com.example.dulcehorno.UserSessionManager;
-import com.example.dulcehorno.model.Receipt;
 import com.example.dulcehorno.model.Product;
+import com.example.dulcehorno.model.Receipt;
+import com.example.dulcehorno.model.UserProfileResponse;
 import com.example.dulcehorno.network.repository.ProductsRepository;
 import com.example.dulcehorno.network.repository.UserRepository;
 import com.example.dulcehorno.utils.ErrorHandler;
+import com.example.dulcehorno.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.example.dulcehorno.R;
-import com.example.dulcehorno.model.UserProfileResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -34,11 +34,11 @@ import okhttp3.Response;
 
 public class HomeFragment extends Fragment {
 
-    public HomeFragment() {}
-
     private UserRepository userRepository;
     private ProductsRepository productsRepository;
     private Gson gson = new Gson();
+
+    public HomeFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -48,7 +48,14 @@ public class HomeFragment extends Fragment {
         userRepository = new UserRepository(requireContext());
         productsRepository = new ProductsRepository(requireContext());
 
-        // --- Obtener perfil del usuario ---
+        loadUserProfile();
+        loadUserReceipts();
+        loadProductsAndShowFragment();
+
+        return rootView;
+    }
+
+    private void loadUserProfile() {
         userRepository.getUserProfile(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -79,8 +86,9 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+    }
 
-        // --- Obtener recibos del usuario ---
+    private void loadUserReceipts() {
         userRepository.getUserReceipts(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -89,7 +97,6 @@ public class HomeFragment extends Fragment {
                     requireActivity().runOnUiThread(() ->
                             Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show()
                     );
-                    redirectToLogin();
                 }
             }
 
@@ -103,7 +110,6 @@ public class HomeFragment extends Fragment {
                     Type listType = new TypeToken<List<Receipt>>() {}.getType();
                     List<Receipt> receipts = gson.fromJson(responseBody, listType);
 
-                    // --- Cargar los recibos al singleton ---
                     ReceiptManager receiptManager = ReceiptManager.getInstance();
                     receiptManager.clearReceipts();
                     for (Receipt r : receipts) {
@@ -115,12 +121,12 @@ public class HomeFragment extends Fragment {
                     requireActivity().runOnUiThread(() ->
                             Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show()
                     );
-                    redirectToLogin();
                 }
             }
         });
+    }
 
-        // --- Obtener productos del servidor ---
+    private void loadProductsAndShowFragment() {
         productsRepository.getProducts(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -142,12 +148,14 @@ public class HomeFragment extends Fragment {
                     Type listType = new TypeToken<List<Product>>() {}.getType();
                     List<Product> products = gson.fromJson(responseBody, listType);
 
-                    // --- Cargar los productos al singleton ---
                     ProductManager productManager = ProductManager.getInstance();
                     productManager.clear();
                     for (Product p : products) {
                         productManager.addProduct(p);
                     }
+
+                    // Mostrar ProductsFragment SOLO después de cargar productos
+                    requireActivity().runOnUiThread(() -> showDefaultFragment());
 
                 } else {
                     String errorMessage = ErrorHandler.getErrorMessage(responseBody);
@@ -157,26 +165,10 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
-        return rootView;
     }
 
-    private void redirectToLogin() {
-        if (!isAdded()) return;
-        requireActivity().runOnUiThread(() -> {
-            getParentFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, new LoginFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottomNavigationView);
+    private void showDefaultFragment() {
+        BottomNavigationView bottomNavigationView = requireView().findViewById(R.id.bottomNavigationView);
 
         // Cargar fragment por defecto: Productos
         getChildFragmentManager()
@@ -184,6 +176,7 @@ public class HomeFragment extends Fragment {
                 .replace(R.id.homeFragmentContainer, new ProductsFragment())
                 .commit();
 
+        // Configurar navegación
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -204,6 +197,17 @@ public class HomeFragment extends Fragment {
             }
 
             return true;
+        });
+    }
+
+    private void redirectToLogin() {
+        if (!isAdded()) return;
+        requireActivity().runOnUiThread(() -> {
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, new LoginFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
     }
 }
