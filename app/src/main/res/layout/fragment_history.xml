@@ -62,7 +62,7 @@
                 android:contentDescription="Perfil de usuario"
                 android:padding="4dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_receipts"
+                android:src="@drawable/pan"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
 
             <LinearLayout

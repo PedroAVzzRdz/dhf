@@ -122,7 +122,7 @@ public class CartFragment extends Fragment {
                             itemsForReceipt.add(new CartItem(ci.getProduct(), ci.getQuantity()));
                         }
 
-                        double total = CartManager.getInstance().getTotalPrice();
+                        double total = CartManager.getInstance().getTotalPrice() + 40.0;
 
                         userRepository.getUserReceiptsCount(new Callback() {
                             @Override

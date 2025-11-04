@@ -161,6 +161,7 @@ public class ProductsFragment extends Fragment {
 
     /**
      * Muestra un diálogo para elegir la cantidad y agrega el producto al carrito.
+     * Antes verifica que no se exceda el límite de unidades disponibles.
      */
     private void showQuantityDialog(Product product) {
         EditText input = new EditText(requireContext());
@@ -169,11 +170,12 @@ public class ProductsFragment extends Fragment {
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Cantidad")
-                .setMessage("¿Cuántas unidades quieres agregar?")
+                .setMessage("¿Cuántas unidades quieres agregar?\nDisponibles: " + product.getAvailableUnits())
                 .setView(input)
                 .setPositiveButton("Agregar", (dialog, which) -> {
                     String text = input.getText().toString().trim();
-                    int qty = 1;
+                    int qty;
+
                     try {
                         qty = Integer.parseInt(text);
                         if (qty <= 0) throw new NumberFormatException();
@@ -181,12 +183,27 @@ public class ProductsFragment extends Fragment {
                         Toast.makeText(getContext(), "Cantidad inválida, se usará 1.", Toast.LENGTH_SHORT).show();
                         qty = 1;
                     }
+
+                    // 🔍 Verificación de stock disponible
+                    if (product.getAvailableUnits() <= 0) {
+                        Toast.makeText(getContext(), "Este producto está agotado.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (qty > product.getAvailableUnits()) {
+                        Toast.makeText(getContext(), "Solo hay " + product.getAvailableUnits() + " unidades disponibles.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // ✅ Si la cantidad es válida, agregar al carrito
                     CartManager.getInstance().addToCart(product, qty);
                     Toast.makeText(getContext(), product.getName() + " x" + qty + " agregado al carrito", Toast.LENGTH_SHORT).show();
+
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
+
 
     /**
      * Abre un fragmento con más información del producto.
